@@ -1,0 +1,89 @@
+technical_analysis_task:
+  description: >
+    Analyze the structured technical market intelligence for {ticker}.
+
+    Input JSON from MarketStateEngine:
+    {technical_market_state}
+
+    Interpret the market regime, trend direction, momentum state, volatility
+    condition, bullish and bearish scores, confidence level, market structure,
+    and key technical signals. Do not fetch market data. Do not compute
+    indicators. Do not generate BUY, SELL, or HOLD decisions.
+  expected_output: >
+    A valid JSON object with these exact types:
+    technical_outlook (string), confidence_level (integer 0-100),
+    trend_explanation (string), momentum_interpretation (string),
+    volatility_assessment (string), technical_reasoning (string),
+    notable_risks (array of strings, NEVER objects),
+    key_technical_signals (array of strings, NEVER objects).
+  agent: technical_agent
+
+sentiment_analysis_task:
+  description: >
+    Analyze the compressed sentiment intelligence for {ticker}.
+
+    Input JSON from SentimentCompressorTool:
+    {compressed_sentiment}
+
+    Interpret sentiment direction, macroeconomic implications, dominant
+    narratives, bullish pressure, bearish pressure, conflicting narratives,
+    and supporting headlines or events. Do not fetch news. Do not summarize
+    raw articles. Do not generate BUY, SELL, or HOLD decisions.
+  expected_output: >
+    A valid JSON object with these exact types:
+    sentiment_outlook (string), confidence_level (integer 0-100),
+    macro_interpretation (string), dominant_narratives (array of strings, NEVER objects),
+    bullish_sentiment_factors (array of strings, NEVER objects),
+    bearish_sentiment_factors (array of strings, NEVER objects),
+    conflicting_narratives (array of strings, NEVER objects),
+    sentiment_reasoning (string).
+  agent: sentiment_agent
+
+risk_analysis_task:
+  description: >
+    Evaluate risk using the outputs of the Technical Agent and Sentiment Agent.
+
+    User risk tolerance:
+    {risk_tolerance}
+
+    Compare technical and sentiment conclusions. Identify whether signals are
+    aligned, conflicting, or partially aligned. Evaluate uncertainty, volatility
+    exposure, confidence stability, and suitable exposure size for the selected
+    risk tolerance. Do not inspect raw OHLCV data or raw news.
+  expected_output: >
+    A valid JSON object with these exact types:
+    overall_risk_level (string), trade_quality (string),
+    uncertainty_level (string), signal_alignment (string),
+    recommended_exposure_size (string), risk_tolerance_context (string),
+    warnings (array of strings, NEVER objects), risk_reasoning (string).
+  agent: risk_agent
+  context:
+    - technical_analysis_task
+    - sentiment_analysis_task
+
+decision_analysis_task:
+  description: >
+    Generate the final recommendation for {ticker} using the completed
+    Technical Agent, Sentiment Agent, and Risk Agent outputs.
+
+    User risk tolerance:
+    {risk_tolerance}
+
+    Synthesize the prior agent outputs into one final explainable market
+    recommendation. You may generate only one of these recommendation labels:
+    BUY, SELL, or HOLD. Do not inspect raw OHLCV data or raw news. Do not
+    calculate indicators. Explain why the recommendation is appropriate based
+    on technical conditions, sentiment context, and risk suitability.
+  expected_output: >
+    A valid JSON object with these exact types:
+    final_recommendation (one of "BUY", "SELL", "HOLD"),
+    final_confidence (integer 0-100), reasoning_summary (string),
+    supporting_factors (array of strings, NEVER objects),
+    warning_signals (array of strings, NEVER objects),
+    technical_weight (integer), sentiment_weight (integer),
+    risk_weight (integer), execution_notes (string).
+  agent: decision_agent
+  context:
+    - technical_analysis_task
+    - sentiment_analysis_task
+    - risk_analysis_task
